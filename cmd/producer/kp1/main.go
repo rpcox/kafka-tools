@@ -48,6 +48,7 @@ func Flush(p *kafka.Producer) {
 }
 
 func main() {
+	_broker := flag.String("b", "", "Identify a specific broker / bootstrap server")
 	_config := flag.String("p", "", "Location of Kafka producer properties file")
 	_count := flag.Int("count", 5, "Specify the number of messages to publish")
 	_length := flag.Int("l", 64, "Specify the length of the random message")
@@ -58,6 +59,10 @@ func main() {
 	Version(*_version)
 
 	config := ReadConfig(*_config)
+	if *_broker != "" {
+		config["bootstrap.servers"] = *_broker
+	}
+
 	p, err := kafka.NewProducer(&config)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
