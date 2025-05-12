@@ -1,5 +1,6 @@
 ## kpload
 
+A producer that accepts piped input
 
     > cat file
     {"first":"john","last":"smaith"}
