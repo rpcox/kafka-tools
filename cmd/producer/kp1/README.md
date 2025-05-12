@@ -1,5 +1,7 @@
  ## kp1
 
+A simple producer to test publishing on a cluster.  Send one message or send 1 M, there is no throttle
+
     >  bin/kafka-topics.sh --bootstrap-server mushu:9092 --list --exclude-internal
     syslog-systemd
     test.topic
