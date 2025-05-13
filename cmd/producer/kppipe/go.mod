@@ -1,4 +1,4 @@
-module github.com/rpcox/kafka-tools/cmd/producer/kpload
+module github.com/rpcox/kafka-tools/cmd/producer/kppipe
 
 go 1.21.5
 
