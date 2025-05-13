@@ -6,15 +6,15 @@ A producer that accepts piped input
     {"first":"john","last":"smaith"}
     {"first":"jane","last":"doe"}
 
-    > cat file | kpload -p props -t test.topic -keygen enum
+    > cat file | kppipe -p props -t test.topic -keygen enum
     publish success: topic:test.topic in partition[5] @ offset 9
     publish success: topic:test.topic in partition[5] @ offset 10
 
-    > cat file | kpload -p props -t test.topic -keygen epoch
+    > cat file | kppipe -p props -t test.topic -keygen epoch
     publish success: topic:test.topic in partition[0] @ offset 10
     publish success: topic:test.topic in partition[0] @ offset 11
 
-    > cat file | ./kpload -p props -t test.topic -keygen uuid
+    > cat file | kppipe -p props -t test.topic -keygen uuid
     publish success: topic:test.topic in partition[5] @ offset 11
     publish success: topic:test.topic in partition[5] @ offset 12
 
