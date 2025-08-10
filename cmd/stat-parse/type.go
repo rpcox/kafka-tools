@@ -123,14 +123,14 @@ type KafkaCgrp struct {
 }
 
 type KafkaEos struct {
-	IdempState    string `json:",omitempty"` // Current idempotent producer id state.
-	IdempStateAge int64  `json:",omitempty"` // gauge - Time elapsed since last idemp_state change (milliseconds)
-	TxnState      string `json:",omitempty"` // Current transactional producer state
-	TxnStateAge   int64  `json:",omitempty"` // counter - Time elapsed since last txn_state change (milliseconds)
-	TxnMayEnq     bool   `json:",omitempty"` // Transactional state allows enqueuing (producing) new messages
-	ProducerId    int64  `json:",omitempty"` // gauge - The currently assigned Producer ID (or -1)
-	ProducerEpoch int64  `json:",omitempty"` // gauge - The current epoch (or -1)
-	EpochCnt      int64  `json:",omitempty"` // The number of Producer ID assignments since start
+	IdempState    string `json:"idemp_state,omitempty"`    // Current idempotent producer id state.
+	IdempStateAge int64  `json:"idemp_stateage,omitempty"` // gauge - Time elapsed since last idemp_state change (milliseconds)
+	TxnState      string `json:"txn_state,omitempty"`      // Current transactional producer state
+	TxnStateAge   int64  `json:"txn_stateage,omitempty"`   // counter - Time elapsed since last txn_state change (milliseconds)
+	TxnMayEnq     bool   `json:"txn_may_enq,omitempty"`    // Transactional state allows enqueuing (producing) new messages
+	ProducerId    int64  `json:"producer_id,omitempty"`    // gauge - The currently assigned Producer ID (or -1)
+	ProducerEpoch int64  `json:"producer_epoch,omitempty"` // gauge - The current epoch (or -1)
+	EpochCnt      int64  `json:"epoch_cnt,omitempty"`      // The number of Producer ID assignments since start
 }
 
 type TopicPartitions struct {
