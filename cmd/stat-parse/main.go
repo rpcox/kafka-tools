@@ -65,11 +65,20 @@ func main() {
 			fmt.Printf(dformat, "OutBufLatency[min]", v.OutBufLatency["min"])
 			fmt.Printf("%20s: %d (%s)\n", "RTT[avg]", v.RTT["avg"], time.Duration((v.RTT["avg"]/100000)*time.Hour.Microseconds()))
 			fmt.Printf("%20s: %d (%s)\n", "Throttle[avg]", v.Throttle["avg"], time.Duration((v.Throttle["avg"]/100000)*time.Hour.Microseconds()))
-			fmt.Printf("\n%20s\n", "PARTITIONS:")
+			fmt.Printf("\n%20s\n", " BROKER PARTITIONS:")
 			for _, v := range v.TopPars {
 				fmt.Printf("%20s: %d\n", v.Topic, v.Partition)
 			}
 			fmt.Println()
+		}
+	}
+	fmt.Printf("\n%20s\n", "TOPICS:")
+	for k, v := range stats.Topics {
+		fmt.Printf("++ %20s\n", k)
+		for p, v := range v.Partitions {
+			if p != "-1" {
+				fmt.Printf(dformat, "P-"+p+" Consumer Lag: ", v.ConsumerLag)
+			}
 		}
 	}
 
