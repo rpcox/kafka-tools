@@ -1,9 +1,24 @@
 // A package of useful Go Kafka types
-// ref - https://docs.confluent.io/platform/current/clients/librdkafka/html/md_STATISTICS.html
-
 package main
 
 /*
+	ref - https://docs.confluent.io/platform/current/clients/librdkafka/html/md_STATISTICS.html
+
+curl -I https://docs.confluent.io/platform/current/clients/librdkafka/html/md_STATISTICS.html
+HTTP/2 200
+content-type: text/html
+content-length: 68898
+date: Sat, 23 Aug 2025 02:50:44 GMT
+last-modified: Fri, 22 Aug 2025 16:37:56 GMT
+x-amz-version-id: MGISQ_dAnhHUn.cuhHhH0cpnRRJtIemJ
+etag: "b8cf8e282117ef2f8eac90578959386d"
+server: AmazonS3
+x-cache: Hit from cloudfront
+via: 1.1 b0921181e973f37be0dbce2713f6360e.cloudfront.net (CloudFront)
+x-amz-cf-pop: IAH50-C2
+x-amz-cf-id: WLrOGK0TUm3Noh1MjCqwYm4QFyzo-HjZbspyimIP2erINxkWpYwsXA==
+age: 15
+vary: Origin
 
 Window stats
 Rolling window statistics. The values are in microseconds unless otherwise stated.
@@ -18,7 +33,6 @@ type KafkaBroker
 type KafkaTopic
 	BatchSize
 	BatchCnt
-
 
 Key		Value	        Description
 ---		-----		----------------
@@ -105,11 +119,59 @@ type KafkaBroker struct {
 }
 
 type KafkaTopic struct {
-	Topic       string           `json:"topic,omitempty"`        // Topic name
-	Age         int64            `json:"age,omitempty"`          // Age of client's topic object (milliseconds)
-	MetaDataAge int64            `json:"metadata_age,omitempty"` // Age of metadata from broker for this topic (milliseconds)
-	BatchSize   map[string]int64 `json:"batchsize,omitempty"`    // Batch sizes in bytes. See *Window stats*·
-	BatchCnt    map[string]int64 `json:"batchcnt,omitempty"`     // Batch message counts. See *Window stats*·
+	Topic       string                    `json:"topic,omitempty"`        // Topic name
+	Age         int64                     `json:"age,omitempty"`          // Age of client's topic object (milliseconds)
+	MetaDataAge int64                     `json:"metadata_age,omitempty"` // Age of metadata from broker for this topic (milliseconds)
+	BatchSize   map[string]int64          `json:"batchsize,omitempty"`    // Batch sizes in bytes. See *Window stats*·
+	BatchCnt    map[string]int64          `json:"batchcnt,omitempty"`     // Batch message counts. See *Window stats*·
+	Partitions  map[string]KafkaPartition `json:"partitions,omitempty"`   // Topic partitions
+}
+
+type KafkaPartition struct {
+	Partition         int64  `json:"partition,omitempty"`           // Partition Id (-1 for internal UA/UnAssigned partition)
+	Broker            int64  `json:"broker,omitempty"`              // The id of the broker that messages are currently being fetched from
+	Leader            int64  `json:"leader,omitempty"`              // Current leader broker id
+	Desired           bool   `json:"desired,omitempty"`             // Partition is explicitly desired by application
+	Unknown           bool   `json:"unknown,omitempty"`             // Partition not seen in topic metadata from broker
+	MsgQCnt           int64  `json:"msgq_cnt,omitempty"`            // gauge - Number of messages waiting to be produced in first-level queue
+	MsgQBytes         int64  `json:"msgq_bytes,omitempty"`          // gauge - Number of bytes in msgq_cnt
+	XmitMsgQCnt       int64  `json:"xmit_msgq_cnt,omitempty"`       // gauge - Number of messages ready to be produced in transmit queue
+	XmitMsgBytes      int64  `json:"xmit_msgq_bytes,omitempty"`     // gauge - Number of bytes in xmit_msgq
+	FetchQCnt         int64  `json:"fetchq_cnt,omitempty"`          // gauge - Number of pre-fetched messages in fetch queue
+	FetchQSize        int64  `json:"fetchq_size,omitempty"`         // gauge - Bytes in fetchq
+	FetchState        string `json:"fetch_state,omitempty"`         // Consumer fetch state for this partition (none, stopping, stopped, offset-query, offset-wait, active)
+	QueryOffset       int64  `json:"query_offset,omitempty"`        // gauge - Current/Last logical offset query
+	NextOffset        int64  `json:"next_offset,omitempty"`         // gauge - Next offset to fetch
+	AppOffset         int64  `json:"app_offset,omitempty"`          // gauge - Offset of last message passed to application + 1
+	StoredOffset      int64  `json:"stored_offset,omitempty"`       // gauge - Offset to be committed
+	StoredLeaderEpoch int64  `json:"stored_leader_epoch,omitempty"` // Partition leader epoch of stored offset
+	// Note: there is a typo in the stats.  Unsure which will stay.  Take both for now
+	CommitedOffset       int64 `json:"commited_offset,omitempty"`        // gauge - Last committed offset
+	CommittedOffset      int64 `json:"committed_offset,omitempty"`       // gauge - Last committed offset
+	CommittedLeaderEpoch int64 `json:"committed_leader_epoch,omitempty"` // Partition leader epoch of committed offset
+	EofOffset            int64 `json:"eof_offset,omitempty"`             // gauge - Last PARTITION_EOF signaled offset
+	LoOffset             int64 `json:"lo_offset,omitempty"`              // gauge - Partition's low watermark offset on broker
+	HiOffset             int64 `json:"hi_offset,omitempty"`              // gauge - Partition's high watermark offset on broker
+	LsOffset             int64 `json:"ls_offset,omitempty"`              // gauge - Partition's last stable offset on broker, or same as hi_offset if broker version is less than 0.11.0.0.
+	ConsumerLag          int64 `json:"consumer_lag,omitempty"`           // gauge - Difference between (hi_offset or ls_offset) and committed_offset). hi_offset is used when isolation.level=read_uncommitted, otherwise ls_offset.
+	ConsumerLagStored    int64 `json:"consumer_lag_stored,omitempty"`    // gauge - Difference between (hi_offset or ls_offset) and stored_offset. See consumer_lag and stored_offset.
+	LeaderEpoch          int64 `json:"leader_epoch,omitempty"`           // Last known partition leader epoch, or -1 if unknown.
+	TxMsgs               int64 `json:"txmsgs,omitempty"`                 // counter - Total number of messages transmitted (produced)
+	TxBytes              int64 `json:"txbytes,omitempty"`                // counter - Total number of bytes transmitted for txmsgs
+	RxMsgs               int64 `json:"rxmsgs,omitempty"`                 // counter - Total number of messages consumed, not including ignored messages (due to offset, etc).
+	RxBytes              int64 `json:"rxbytes,omitempty"`                // counter - Total number of bytes received for rxmsgs
+	Msgs                 int64 `json:"msgs,omitempty"`                   // counter - Total number of messages received (consumer, same as rxmsgs), or total number of messages produced (possibly not yet transmitted) (producer)
+	RxVerDrops           int64 `json:"rx_ver_drops,omitempty"`           // counter? - Dropped outdated messages
+	MsgsInflight         int64 `json:"msgs_inflight,omitempty"`          // gauge - Current number of messages in-flight to/from broker
+	NextAckSeq           int64 `json:"next_ack_seq,omitempty"`           // gauge - Next expected acked sequence (idempotent producer)
+	NextErrSeq           int64 `json:"next_err_seq,omitempty"`           // gauge - Next expected errored sequence (idempotent producer)
+	AckedMsgId           int64 `json:"acked_msgid,omitempty"`            // Last acked internal message id (idempotent producer)
+}
+
+// Topic partitions assigned to broker
+type BrokerPars struct {
+	Topic     string `json:"topic,omitempty"`     // topic name
+	Partition int64  `json:"partition,omitempty"` // partition id
 }
 
 type KafkaCgrp struct {
@@ -131,14 +193,4 @@ type KafkaEos struct {
 	ProducerId    int64  `json:"producer_id,omitempty"`    // gauge - The currently assigned Producer ID (or -1)
 	ProducerEpoch int64  `json:"producer_epoch,omitempty"` // gauge - The current epoch (or -1)
 	EpochCnt      int64  `json:"epoch_cnt,omitempty"`      // The number of Producer ID assignments since start
-}
-
-type TopicPartitions struct {
-	// TO DO
-}
-
-// Topic partitions assigned to broker
-type BrokerPars struct {
-	Topic     string `json:"topic,omitempty"`     // topic name
-	Partition int64  `json:"partition,omitempty"` // partition id
 }
