@@ -17,7 +17,10 @@ var (
 	_commit string
 	_branch string
 
-	ExitNewProducerFail = 2
+	ExitNewProducerFail    = 2
+	ExitNewAdminClientFail = 3
+	ExitGetMetaDataFail    = 4
+	ExitTopicNotExist      = 5
 )
 
 func Version(b bool) {
