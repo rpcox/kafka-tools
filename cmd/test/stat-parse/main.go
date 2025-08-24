@@ -1,3 +1,4 @@
+// Testing tool to parse Kafka JSON stats emitted from librdkafka
 package main
 
 import (
