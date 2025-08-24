@@ -98,6 +98,7 @@ func main() {
 	_count := flag.Int("count", 5, "Specify the number of messages to publish")
 	_length := flag.Int("l", 64, "Specify the length of the random message")
 	_topic := flag.String("t", "", "Identify the Kafka topic")
+	_verbose := flag.Bool("verbose", false, "Increase verbosity")
 	_version := flag.Bool("version", false, "Display version and exit")
 	flag.Parse()
 
@@ -155,8 +156,10 @@ func main() {
 			if m.TopicPartition.Error != nil {
 				fmt.Fprintf(os.Stderr, "publish fail: %v\n", m.TopicPartition.Error)
 			} else {
-				fmt.Fprintf(os.Stdout, "publish success: topic:%s in partition[%d] @ offset %v\n",
-					*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
+				if *_verbose {
+					fmt.Fprintf(os.Stdout, "publish success: topic:%s in partition[%d] @ offset %v\n",
+						*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
+				}
 			}
 			m = nil
 
